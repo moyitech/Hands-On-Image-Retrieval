@@ -1,6 +1,5 @@
 import gradio as gr
 import os
-
 import time
 import torch
 import clip
@@ -44,4 +43,4 @@ def retrieval(image):
 
 
 demo = gr.Interface(fn=retrieval, inputs="image", outputs="image")
-demo.launch()
+demo.launch(share=True)
