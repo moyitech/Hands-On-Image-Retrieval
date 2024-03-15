@@ -1,4 +1,5 @@
 import gradio as gr
+import os
 
 import time
 import torch
@@ -10,12 +11,14 @@ from pymilvus import (
     Collection
 )
 
+root_path = "val2017"
+
 fmt = "\n=== {:30} ===\n"
 search_latency_fmt = "search latency = {:.4f}s"
 model, preprocess = clip.load("ViT-B/32")
 client = connections.connect(host="172.18.68.230", port="19530")
-hello_milvus = Collection("hello_milvus")
-hello_milvus.load()
+collection = Collection("HOIR")
+collection.load()
 
 
 def search_milvus(collection, query_features, top_k):
@@ -34,10 +37,10 @@ def retrieval(image):
         image_features = model.encode_image(image)
         image_features /= image_features.norm(dim=-1, keepdim=True)
     query_features = image_features.numpy().tolist()
-    results = search_milvus(hello_milvus, query_features, 5)
+    results = search_milvus(collection, query_features, 5)
     path = results[0][0].entity.get('path')
     print(path)
-    return Image.open(path)
+    return Image.open(os.path.join(root_path, path))
 
 
 demo = gr.Interface(fn=retrieval, inputs="image", outputs="image")
